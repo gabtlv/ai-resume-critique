@@ -75,7 +75,7 @@ st.markdown("""
 .stTextInput input::placeholder { color: #444 !important; }
 .stTextInput label { display: none !important; }
 
-.stButton button {
+.stButton button, [data-testid="stFormSubmitButton"] button {
     background: #f5f5f5 !important;
     color: #000000 !important;
     border: none !important;
@@ -87,8 +87,8 @@ st.markdown("""
     width: 100% !important;
     transition: opacity 0.2s !important;
 }
-.stButton button:hover { opacity: 0.85 !important; }
-.stButton button p { color: #000000 !important; }
+.stButton button:hover, [data-testid="stFormSubmitButton"] button:hover { opacity: 0.85 !important; }
+.stButton button p, [data-testid="stFormSubmitButton"] button p { color: #000000 !important; }
 
 .results-header {
     font-size: 0.78rem;
@@ -128,21 +128,19 @@ hr { border-color: #1e1e1e !important; }
 </div>
 """, unsafe_allow_html=True)
 
-# Try st.secrets first (Streamlit Cloud), fallback to .env (local)
 try:
     OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
 except:
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-st.markdown('<div class="card-label">Resume</div>', unsafe_allow_html=True)
-uploaded_file = st.file_uploader("Upload your resume (PDF or TXT)", type={"pdf", "txt"}, label_visibility="collapsed")
-
-st.markdown('<div style="height:1rem"></div>', unsafe_allow_html=True)
-st.markdown('<div class="card-label">Target Role <span style="color:#444;font-size:0.72rem">(optional)</span></div>', unsafe_allow_html=True)
-job_role = st.text_input("Job role", placeholder="e.g. Software Engineer Intern, Data Analyst", label_visibility="collapsed")
-
-st.markdown('<div style="height:1rem"></div>', unsafe_allow_html=True)
-analyze = st.button("Analyze Resume")
+with st.form(key="resume_form", clear_on_submit=False):
+    st.markdown('<div class="card-label">Resume</div>', unsafe_allow_html=True)
+    uploaded_file = st.file_uploader("Upload your resume (PDF or TXT)", type={"pdf", "txt"}, label_visibility="collapsed")
+    st.markdown('<div style="height:1rem"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="card-label">Target Role <span style="color:#444;font-size:0.72rem">(optional)</span></div>', unsafe_allow_html=True)
+    job_role = st.text_input("Job role", placeholder="e.g. Software Engineer Intern, Data Analyst", label_visibility="collapsed")
+    st.markdown('<div style="height:1rem"></div>', unsafe_allow_html=True)
+    analyze = st.form_submit_button("Analyze Resume")
 
 def extract_text_from_pdf(pdf_file):
     pdf_reader = PyPDF2.PdfReader(pdf_file)
